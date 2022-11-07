@@ -184,9 +184,9 @@ jobs:
             echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt 
             cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: ~/
+          root: .
           paths:
-            - udapeople-cicd/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
     
          
 
