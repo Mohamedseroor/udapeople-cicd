@@ -149,7 +149,7 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker pull ubuntu
     steps:
       - checkout
       - run:
