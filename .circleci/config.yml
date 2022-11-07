@@ -149,14 +149,12 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: docker pull ubuntu
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run:
           name: Install dependencies
-          command: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                   unzip awscliv2.zip
-                   sudo ./aws/install
+          command: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -180,7 +178,7 @@ jobs:
          
           command: |
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt 
