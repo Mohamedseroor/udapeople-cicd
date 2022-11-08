@@ -204,12 +204,18 @@ jobs:
       - attach_workspace:
           at: ~/    
       - run:
+          name: Install dependencies
+          working_directory: ./.circleci/ansible
+          command: |
+            apk add --update ansible
+            ansible --version
+      - run:
           name: configure server 
           command: |
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment      
+      # - destroy-environment      
     
 
 #   run-migrations:
