@@ -199,7 +199,7 @@ jobs:
       - image: python:3.9.0-alpine
     steps:
       - checkout
-      # - install_ansible
+      - install_awscli
       - add_ssh_keys:
           fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
       - attach_workspace:
@@ -214,7 +214,7 @@ jobs:
           name: Configure server
           working_directory: ./.circleci/ansible
           command: |
-            pwd &&
+            pwd && fdsfsdf
             ls -la
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
