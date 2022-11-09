@@ -216,7 +216,7 @@ jobs:
             pwd &&
             ls -la
             cat inventory
-            ansible-playbook -i inventory configure-server.yaml
+            ansible-playbook -i inventory.txt configure-server.yaml
       # - destroy-environment      
     
 
