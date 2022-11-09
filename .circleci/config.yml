@@ -196,7 +196,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.9.0-alpine
     steps:
       - run:
           name: Install AWS CLI v2
@@ -204,13 +204,7 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
-      - run:
-          name: Install ansible v2
-          command: |
-            sudo apt update
-            sudo apt install software-properties-common
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible         
+              
       - run:
           name: Install dependencies
           command: yum install -y tar gzip
