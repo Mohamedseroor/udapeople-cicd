@@ -196,7 +196,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - run:
           name: Install dependencies
@@ -206,9 +206,7 @@ jobs:
           fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
       - attach_workspace:
           at: ~/ 
-      - install python for Ansible: 
-          name: istall python
-          command: test -e /usr/bin/python3 || (apt -y update && apt install -y python3) 
+             
       - run:
           name: Install dependencies
           working_directory: ./.circleci/ansible
