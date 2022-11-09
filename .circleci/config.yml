@@ -198,34 +198,25 @@ jobs:
     docker:
       - image: python:3.9.0-alpine
     steps:
-      # - run:
-      #     # name: Install AWS CLI v2
-      #     # command: |
-      #     #   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #     #   unzip awscliv2.zip
-      #     #   sudo ./aws/install
-              
-      # - run:
-      #     name: Install dependencies
-      #     command: yum install -y tar gzip
       - checkout
       - add_ssh_keys:
           fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
       - attach_workspace:
-          at: ~/ 
-             
+          at: .
       - run:
           name: Install dependencies
           working_directory: ./.circleci/ansible
           command: |
             apk add --update ansible
-            ansible --version    
+            ansible --version
       - run:
-          name: configure server 
+          name: Configure server
+          working_directory: ./.circleci/ansible
           command: |
-            cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt configure-server.yml
+            pwd &&
+            ls -la
+            cat inventory
+            ansible-playbook -i inventory configure-server.yaml
       # - destroy-environment      
     
 
