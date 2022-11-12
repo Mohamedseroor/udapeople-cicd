@@ -135,9 +135,6 @@ jobs:
              npm install
              npm audit fix --force --audit-level=critical
              npm audit --audit-level=critical
-             npm install --save-dev typescript@>=4.3
-             npm install --save-dev webpack@^4.37.0 || ^5.0.0
-             npm install --save-dev webpack@^5.0.0
              
 
   scan-backend:
