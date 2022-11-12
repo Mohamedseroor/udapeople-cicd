@@ -133,7 +133,7 @@ jobs:
           command: |
              cd frontend
              npm install
-             npm i --legacy-peer-deps
+             npm install -g npm-install-peers
              npm audit fix --force --audit-level=critical
              npm audit --audit-level=critical
 
