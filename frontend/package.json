@@ -106,11 +106,6 @@
     "redux-thunk": "^2.3.0",
     "sweetalert2": "^8.13.4"
   },
-  "peer dependencies": {
-    "typescript": "^4.3",
-    "webpack": "^5.0.0"
-
-  },
   "jest": {
     "rootDir": "src",
     "coverageDirectory": "../coverage",
