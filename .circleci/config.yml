@@ -131,10 +131,12 @@ jobs:
       - run:
           name: front-end scan
           command: |
-             cd frontend
-             npm install
-             npm audit fix --force --audit-level=critical
-             npm audit --audit-level=critical
+            sudo apt -y install jq tar gzip git curl
+            cd frontend
+            npm install
+            npm install --save-dev webpack-cli@4.10.0
+            npm audit fix --force --audit-level=critical
+            npm audit --audit-level=critical
              
 
   scan-backend:
@@ -222,8 +224,7 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
         
-    
-
+        
   run-migrations:
     docker:
       - image: cimg/node:13.8.0
