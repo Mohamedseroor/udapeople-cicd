@@ -250,7 +250,6 @@ jobs:
             sudo apt -y install jq tar gzip git curl
             cd backend
             npm install
-            npm install typescript -g
             npm run migrations > migration.txt
 
       - run:
