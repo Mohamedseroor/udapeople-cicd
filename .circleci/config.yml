@@ -271,7 +271,7 @@ jobs:
           root: ~/
           paths:
             - api_url.txt
-      - destroy_environment  
+      - destroy-environment  
       # - revert_migrations 
                     
   deploy-backend:
@@ -303,7 +303,7 @@ jobs:
             echo "Contents  of the inventory.txt file is:"
             cat ~/inventory.txt
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ~/inventory.txt .circleci/ansible/deploy-backend.yml
-      - destroy_environment  
+      - destroy-environment  
       # - revert_migrations 
 
 #   smoke-test:
