@@ -258,7 +258,7 @@ jobs:
                 curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
       - destroy-environment
-      - revert_migrations
+      - revert-migrations
   # deploy-frontend:
   #   docker:
   #     - image: amazon/aws-cli
