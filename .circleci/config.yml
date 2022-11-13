@@ -291,12 +291,8 @@ jobs:
           command: |
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml -vv
-      - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
-      - revert-migrations:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
+      - destroy-environment  
+      - revert-migrations 
 #   smoke-test:
 #     docker:
 #       # Lightweight Docker image 
