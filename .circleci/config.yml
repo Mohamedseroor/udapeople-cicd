@@ -270,7 +270,8 @@ jobs:
       - revert-migrations 
                     
   deploy-backend:
-    executor: python:3.9.0-alpine
+    docker:
+    - image: python:3.9.0-alpine
     steps:
       - checkout
       - add_ssh_keys:
