@@ -205,36 +205,7 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
         
-        
-  # run-migrations:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - restore_cache:
-  #         keys: [backend-build]
-  #     - run:
-  #         name: Install awscli
-  #         command: |
-  #           sudo apt-get update && sudo apt-get install -y awscli    
-  #     - run:
-  #         name: Run migrations
-  #         command: |
-  #           cd backend
-  #           npm install
-  #           npm audit fix --audit-level-critical --force
-  #           npm run build
-  #           npm run migrations >> migration.txt
-
-  #     - run:
-  #         name: Send migration results to kvdb
-  #         command: |
-  #           if grep -q "has been executed successfully." ~/project/backend/migration.txt
-  #           then
-  #             curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
-  #           fi
-  #     - destroy-environment
-  #     - revert-migrations      
+ 
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -259,76 +230,73 @@ jobs:
               fi
       - destroy-environment
       - revert-migrations
-  # deploy-frontend:
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - restore_cache:
-  #         keys: [frontend-build]
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           curl -fsSL https://rpm.nodesource.com/setup_13.x | bash - && yum -y install nodejs tar gzip
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           export BACKEND_IP=$(aws ec2 describe-instances --instance-ids $instance_id \
-  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-  #             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-  #             --output text)
-  #           export API_URL="http://${BACKEND_IP}:3030"
-  #           echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-  #           cat frontend/.env
-  #           echo ${API_URL} > ~/api_url.txt
-  #           cat ~/api_url.txt
-  #     - run:
-  #         name: Deploy frontend objects
-  #         command: |
-  #           cd frontend
-  #           npm install -D webpack-cli
-  #           npm run build
-  #           tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-  #           aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-  #     - persist_to_workspace:
-  #         root: ~/
-  #         paths:
-  #           - api_url.txt
-  #     - destroy-environment  
-  #     # - revert_migrations 
-                    
-  # deploy-backend:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - restore_cache:
-  #         keys: [backend-build]
-  #     - add_ssh_keys:
-  #         fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]  
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           sudo apt-get update -y
-  #           sudo apt-get install -y python3
-  #           sudo apt-get install -y awscli tar ansible
-  #     - run:
-  #         name: Deploy backend
-  #         command: |
-  #           cd backend
-  #           npm install
-  #           npm run build
-  #           cd ..
-  #           tar -C backend -czvf artifact.tar.gz .
-  #           cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files
-  #           echo "Contents  of the inventory.txt file is:"
-  #           cat ~/inventory.txt
-  #           ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ~/inventory.txt .circleci/ansible/deploy-backend.yml
-  #     - destroy-environment  
-  #     # - revert_migrations 
+  
+  
+  deploy-frontend:
+    docker:
+      - image:  circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Install AWS CLI dependencies
+          working_directory: /tmp
+          command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
 
+      - run:
+          name: Get backend url (http://ec2_public_ip/api/status )
+          command: |
+            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $instance_id \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+            echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects using ansible (npm install, npm run build, copy dist content to s3 bucket)
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive      
+     
+      - destroy-environment  
+      - revert-migrations 
+                    
+  deploy-backend:
+    executor: python
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          working_directory: /tmp
+          command: |
+            apk add --update ansible curl rsync openssh nodejs npm
+            ansible --version
+            pip install awscli
+            aws --version
+      - run:
+          name: Deploy backend
+          working_directory: ./.circleci/ansible
+          command: |
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml -vv
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
 #   smoke-test:
 #     docker:
 #       # Lightweight Docker image 
