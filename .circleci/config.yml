@@ -282,7 +282,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - add_ssh_keys:
-          fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"] # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]  
       - attach_workspace:
           at: ~/
       - run:
@@ -388,8 +388,8 @@ workflows:
       #     requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [configure-infrastructure]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - deploy-backend:
+          requires: [configure-infrastructure]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
