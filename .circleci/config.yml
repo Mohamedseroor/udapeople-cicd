@@ -233,16 +233,7 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Install AWS CLI dependencies
-          working_directory: /tmp
-          command: |
-            sudo apt-get update && sudo apt-get install -yy less
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
           name: Run migrations
-          working_directory: ~/
           environment:
             TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity{.ts,.js}
             TYPEORM_MIGRATIONS: ./src/migrations/*.ts
@@ -258,6 +249,14 @@ jobs:
             then
               curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi  
+      - run:
+          name: Install AWS CLI dependencies
+          working_directory: /tmp
+          command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install      
       - destroy-environment
       - revert-migrations      
      # Here's where you will add some code to rollback on failure      
