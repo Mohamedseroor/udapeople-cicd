@@ -236,7 +236,7 @@ jobs:
   #     - destroy-environment
   #     - revert-migrations      
 
-deploy-frontend:
+  deploy-frontend:
     docker:
       - image: amazon/aws-cli
     steps:
