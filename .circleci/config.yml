@@ -227,22 +227,24 @@ jobs:
         
   run-migrations:
     docker:
-      # Docker image here that supports NodeJS
-      - image: python:3.7-alpine3.16
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - run:
+          name: Install awscli
+          command: |
+            sudo apt-get update && sudo apt-get install -y awscli    
       # - install_awscli
       # - run:
       #     name: Install awscli
       #     command: |
       #       sudo apt-get update && sudo apt-get install -y awscli
-      - run:
-          name: Run de
-          command: 
-            apk add --update --nocache tar gzip nodejs npm curl
+      # - run:
+      #     name: Run de
+      #     command: 
+      #       apk add --update --nocache tar gzip nodejs npm curl
       - run:
           name: Run migrations
           # migration needs to define the below explicit variables, those env variables may be already added to CircleCi env variables
