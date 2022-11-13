@@ -259,75 +259,75 @@ jobs:
               fi
       - destroy_environment
       # - revert_migrations
-  deploy-frontend:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [frontend-build]
-      - run:
-          name: Install dependencies
-          command: |
-            curl -fsSL https://rpm.nodesource.com/setup_13.x | bash - && yum -y install nodejs tar gzip
-      - run:
-          name: Get backend url
-          command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --instance-ids $instance_id \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-            cat frontend/.env
-            echo ${API_URL} > ~/api_url.txt
-            cat ~/api_url.txt
-      - run:
-          name: Deploy frontend objects
-          command: |
-            cd frontend
-            npm install -D webpack-cli
-            npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - api_url.txt
-      - destroy-environment  
-      # - revert_migrations 
+  # deploy-frontend:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         keys: [frontend-build]
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           curl -fsSL https://rpm.nodesource.com/setup_13.x | bash - && yum -y install nodejs tar gzip
+  #     - run:
+  #         name: Get backend url
+  #         command: |
+  #           export BACKEND_IP=$(aws ec2 describe-instances --instance-ids $instance_id \
+  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+  #             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+  #             --output text)
+  #           export API_URL="http://${BACKEND_IP}:3030"
+  #           echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+  #           cat frontend/.env
+  #           echo ${API_URL} > ~/api_url.txt
+  #           cat ~/api_url.txt
+  #     - run:
+  #         name: Deploy frontend objects
+  #         command: |
+  #           cd frontend
+  #           npm install -D webpack-cli
+  #           npm run build
+  #           tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+  #           aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+  #     - persist_to_workspace:
+  #         root: ~/
+  #         paths:
+  #           - api_url.txt
+  #     - destroy-environment  
+  #     # - revert_migrations 
                     
-  deploy-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [backend-build]
-      - add_ssh_keys:
-          fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]  
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get update -y
-            sudo apt-get install -y python3
-            sudo apt-get install -y awscli tar ansible
-      - run:
-          name: Deploy backend
-          command: |
-            cd backend
-            npm install
-            npm run build
-            cd ..
-            tar -C backend -czvf artifact.tar.gz .
-            cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files
-            echo "Contents  of the inventory.txt file is:"
-            cat ~/inventory.txt
-            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ~/inventory.txt .circleci/ansible/deploy-backend.yml
-      - destroy-environment  
-      # - revert_migrations 
+  # deploy-backend:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         keys: [backend-build]
+  #     - add_ssh_keys:
+  #         fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]  
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           sudo apt-get update -y
+  #           sudo apt-get install -y python3
+  #           sudo apt-get install -y awscli tar ansible
+  #     - run:
+  #         name: Deploy backend
+  #         command: |
+  #           cd backend
+  #           npm install
+  #           npm run build
+  #           cd ..
+  #           tar -C backend -czvf artifact.tar.gz .
+  #           cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files
+  #           echo "Contents  of the inventory.txt file is:"
+  #           cat ~/inventory.txt
+  #           ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ~/inventory.txt .circleci/ansible/deploy-backend.yml
+  #     - destroy-environment  
+  #     # - revert_migrations 
 
 #   smoke-test:
 #     docker:
@@ -409,10 +409,10 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
