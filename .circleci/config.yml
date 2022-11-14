@@ -314,15 +314,37 @@ jobs:
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml 
       - destroy-environment
       - revert-migrations
-#   smoke-test:
-#     docker:
-#       # Lightweight Docker image 
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
+  
+  smoke-test:
+    docker:
+      - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          working_directory: /tmp
+          command: |
+            apk add --update curl nodejs npm
+            pip install awscli
+      - run:
+          name: Get backend url and Backend smoke test
+          command: |
+            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $instance_id \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+            export API_URL=http://${BACKEND_PUBLIC_IP}:3030
+            echo "BACKEND_PUBLIC_IP: ${BACKEND_PUBLIC_IP}"
+            echo "API_URL_URI: ${API_URL}/api/status"
+
+            if curl -s ${API_URL}/api/status | grep "okkkkk"
+            then
+              exit 0
+            else
+              exit 1
+            fi
 #       - run:
 #           name: Get backend url
 #           command: |
