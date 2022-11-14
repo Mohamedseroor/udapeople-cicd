@@ -116,6 +116,9 @@ jobs:
             cd frontend
             npm install
             npm install --save-dev webpack-cli@4.10.0
+            npm update mkdirp --depth 4
+            npm update path-parse --depth 6
+            npm update lodash --depth 12
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
              
