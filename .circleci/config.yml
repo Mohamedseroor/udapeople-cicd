@@ -116,9 +116,6 @@ jobs:
             cd frontend
             npm install
             npm install --save-dev webpack-cli@4.10.0
-            npm update mkdirp --depth 4
-            npm update path-parse --depth 6
-            npm update lodash --depth 12
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
              
@@ -133,16 +130,11 @@ jobs:
       - run:
           name: back-end scan
           command: |
-            cd backend
-            npm install
-            npm install oauth-sign@^0.9.0
-            npm install --save-dev webpack-cli@4.10.0
-            npm update mkdirp --depth 4
-            npm update path-parse --depth 6
-            npm update lodash --depth 12
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
-            npm audit --audit-level=critical
+             cd backend
+             npm install
+             npm audit fix --force --audit-level=critical
+             npm audit fix --force --audit-level=critical
+             npm audit --audit-level=critical
 
   deploy-infrastructure:
     docker:
@@ -228,14 +220,6 @@ jobs:
           command: |
               cd backend
               npm install
-              npm install oauth-sign@^0.9.0
-              npm install --save-dev webpack-cli@4.10.0
-              npm update mkdirp --depth 4
-              npm update path-parse --depth 6
-              npm update lodash --depth 12
-              npm audit fix --audit-level=critical --force
-              npm audit fix --force
-              npm audit --audit-level=critical
               npm run migrations > ~/migrations_dump.txt
       - run:
           name: Send migration results to kvdb
@@ -287,12 +271,13 @@ jobs:
                     
   deploy-backend:
     docker:
-    - image: python:3.9.0-alpine
+      - image: python:3.9.0-alpine
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
-      
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           working_directory: /tmp
@@ -301,20 +286,14 @@ jobs:
             ansible --version
             pip install awscli
             aws --version
-      - attach_workspace:
-          at: ~/      
       - run:
           name: Deploy backend
           working_directory: ./.circleci/ansible
-          environment:
-            TYPEORM_MIGRATIONS_DIR: ./migrations
-            TYPEORM_ENTITIES: ./modules/domain/**/*.entity{.ts,.js}
-            TYPEORM_MIGRATIONS: ./migrations/*.ts
           command: |
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml 
-      - destroy-environment  
-      - revert-migrations 
+      - destroy-environment:
+      - revert-migrations:
 #   smoke-test:
 #     docker:
 #       # Lightweight Docker image 
