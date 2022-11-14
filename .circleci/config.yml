@@ -116,7 +116,7 @@ jobs:
             cd frontend
             npm install
             npm install --save-dev webpack-cli@4.10.0
-           
+            npm update mkdirp --depth 4
             npm update path-parse --depth 6
             npm update lodash --depth 12
             npm audit fix --force --audit-level=critical
@@ -136,6 +136,10 @@ jobs:
             cd backend
             npm install
             npm install oauth-sign@^0.9.0
+            npm install --save-dev webpack-cli@4.10.0
+            npm update mkdirp --depth 4
+            npm update path-parse --depth 6
+            npm update lodash --depth 12
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
