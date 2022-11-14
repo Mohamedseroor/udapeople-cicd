@@ -276,8 +276,6 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
-      - attach_workspace:
-          at: .
       - run:
           name: Install dependencies
           working_directory: /tmp
@@ -286,8 +284,14 @@ jobs:
             ansible --version
             pip install awscli
             aws --version
+      - attach_workspace:
+          at: ~/      
       - run:
           name: Deploy backend
+          environment:
+            TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity{.ts,.js}
+            TYPEORM_MIGRATIONS: ./src/migrations/*.ts
+            TYPEORM_MIGRATIONS_DIR: ./src/migrations 
           working_directory: ./.circleci/ansible
           command: |
             cat inventory.txt
