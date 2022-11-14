@@ -291,6 +291,7 @@ jobs:
           fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
       - run:
           name: Package/Compress Backend Build into artifact.tar.gz
+          working_directory: .
           command: |
             cd backend
             npm run build
