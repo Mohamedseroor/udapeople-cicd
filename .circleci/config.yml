@@ -288,7 +288,15 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - add_ssh_keys:
-          fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]         
+          fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
+      - run:
+          name: Package/Compress Backend Build into artifact.tar.gz
+          command: |
+            cd backend
+            npm run build
+            tar -czf artifact.tar.gz dist/* package*
+            cd ..
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files             
       - run:
           name: Deploy backend
           environment:
@@ -297,13 +305,6 @@ jobs:
             TYPEORM_MIGRATIONS_DIR: ./src/migrations 
           working_directory: ./.circleci/ansible
           command: |
-            cd backend
-            npm install
-            npm run build
-            cd ..
-            tar -C backend -czvf artifact.tar.gz .
-            cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files
-            echo "Contents  of the inventory.txt file is:"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml 
       - destroy-environment
