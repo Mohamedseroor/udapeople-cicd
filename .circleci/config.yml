@@ -43,7 +43,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-deps]
+          keys: [frontend-build]
       - run:
           name: Build front-end
           command: |
@@ -62,7 +62,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-deps]
+          keys: [backend-build]
       - run:
           name: Back-end build
           command: |
@@ -80,7 +80,7 @@ jobs:
     steps:
        - checkout
        - restore_cache:
-          keys: [frontend-deps]
+          keys: [frontend-build]
        - run:
           name: front-end unit test
           command: |
@@ -94,7 +94,7 @@ jobs:
     steps:
        - checkout
        - restore_cache:
-          keys: [backend-deps]
+          keys: [backend-build]
        - run:
           name: Back-end unit test
           command: |
@@ -108,7 +108,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-deps]
+          keys: [frontend-build]
       - run:
           name: front-end scan
           command: |
@@ -126,7 +126,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-deps]
+          keys: [backend-build]
       - run:
           name: back-end scan
           command: |
@@ -274,8 +274,7 @@ jobs:
       - image: python:3.9.0-alpine
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]
+      
       - run:
           name: Install dependencies
           working_directory: /tmp
@@ -285,7 +284,11 @@ jobs:
             pip install awscli
             aws --version
       - attach_workspace:
-          at: ~/      
+          at: ~/ 
+      - restore_cache:
+          keys: [backend-build]
+      - add_ssh_keys:
+          fingerprints: ["0a:a4:63:f5:fb:38:92:0f:21:19:5a:98:74:63:87:8e"]         
       - run:
           name: Deploy backend
           environment:
@@ -294,6 +297,13 @@ jobs:
             TYPEORM_MIGRATIONS_DIR: ./src/migrations 
           working_directory: ./.circleci/ansible
           command: |
+            cd backend
+            npm install
+            npm run build
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files
+            echo "Contents  of the inventory.txt file is:"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml 
       - destroy-environment
