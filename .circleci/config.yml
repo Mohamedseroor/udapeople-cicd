@@ -321,7 +321,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: .
+          at: ~/
       - run:
           name: Install dependencies
           working_directory: /tmp
@@ -345,6 +345,17 @@ jobs:
             else
               exit 1
             fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            S3_Web_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com"
+            echo "S3_Web_URL: $S3_Web_URL"
+            if curl -s $S3_Web_URL | grep "Welcome"
+            then 
+              exit 0
+            else
+              exit 1
+            fi      
 #       - run:
 #           name: Get backend url
 #           command: |
@@ -420,8 +431,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
