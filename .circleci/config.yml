@@ -226,7 +226,7 @@ jobs:
           command: |   
               if grep -q "has been executed successfully." ~/migrations_dump.txt
               then
-                curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                curl --insecure https://kvdb.io/BwExa66CVjCDAUdS2mof6B/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
       - destroy-environment
       - revert-migrations
@@ -257,6 +257,8 @@ jobs:
               --output text)
             echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env
             cat frontend/.env
+            echo ${API_URL} > ~/api_url.txt
+            cat ~/api_url.txt
       - run:
           name: Deploy frontend objects using ansible (npm install, npm run build, copy dist content to s3 bucket)
           command: |
@@ -264,7 +266,11 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive      
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive 
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - api_url.txt           
      
       - destroy-environment  
       - revert-migrations 
@@ -320,16 +326,17 @@ jobs:
       - image: python:3.9.0-alpine
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           working_directory: /tmp
           command: |
             apk add --update curl nodejs npm
             pip install awscli
+      - attach_workspace:
+          at: ~/      
       - run:
           name: Backend smoke test.
+          working_directory: ~/
           command: |
             cat ~/api_url.txt
             export API_URL=$(cat ~/api_url.txt)
@@ -342,7 +349,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-              if curl -s http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees | grep "Welcome"
+              if curl -s "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com" | grep "Welcome"
               then
                 exit 0
               else
