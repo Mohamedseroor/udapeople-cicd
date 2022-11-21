@@ -1,0 +1,32 @@
+GitHub repository [URL01] :
+
+https://github.com/Mohamedseroor/udapeople-cicd.git
+
+********************************************************
+Public URL for your S3 Bucket [URL02] : 
+
+http://udapeople-a6017d7.s3-website-us-east-1.amazonaws.com/#/employees
+
+
+***********************************************************
+
+CloudFront [URL03] : 
+
+http://d1rmsbv1jfvxcw.cloudfront.net/#/employees
+
+******************************************************
+
+ Public URLs to deployed application back-end in EC2 [URL04]:
+
+
+http://18.205.105.58:3030/api/status
+
+****************************************************
+Public URL to your Prometheus Server [URL05]:
+
+http://107.22.158.4:9090/targets
+
+*******************************************************************
+*******************************************************************
+i added employees from the s3 url and cloudfront url screenshots
+Error 500 is due to unexpected behavior from the server sometime when i leave it until it gets reviewed it does this 
